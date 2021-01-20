@@ -1,0 +1,1 @@
+web: ginicorn e_shop_api.wsgi --log-file -
