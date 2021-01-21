@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .filters import ProductFilter
-from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer, CreateUpdateProductSerializer
+from .models import Product, Category, Comment
+from .serializers import ProductSerializer, CategorySerializer, CreateUpdateProductSerializer, CommentSerializer, ProductListSerializer
 
 
 # @api_view(['GET'])
@@ -74,8 +74,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
     def get_serializer_class(self):
-        if self.action == 'list' or self.action == 'retrieve':
+        if self.action == 'retrieve':
             return ProductSerializer
+        elif self.action == 'list':
+            return ProductListSerializer
         return CreateUpdateProductSerializer
 
     def get_permissions(self):
@@ -98,6 +100,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     
+class CommentCreate(CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [p.IsAuthenticated]
 
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
